@@ -21,17 +21,16 @@ type C8FrameBuffer struct {
 }
 
 func (c *C8FrameBuffer) ClearScreen() {
-	for i := 0; i < PIXEL_COUNT; i++ {
+	for i := range c.Buffer {
 		c.Buffer[i] = C8Color{[3]byte{0, 0, 0}}
 	}
 }
 
 func (c *C8FrameBuffer) RandomNoise() {
 	rand.Seed(int64(time.Now().Nanosecond()))
-	for i := 0; i < PIXEL_COUNT; i++ {
+	for i := range c.Buffer {
 		randPix := rand.Intn(2)
 		if randPix == 0 {
-
 			c.Buffer[i] = C8Color{[3]byte{255, 255, 255}}
 		} else {
 			c.Buffer[i] = C8Color{[3]byte{0, 0, 0}}

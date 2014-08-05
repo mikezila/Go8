@@ -28,17 +28,17 @@ type Chip8Memory struct {
 
 func (c *Chip8Memory) Reset() {
 	// Zero memory
-	for i := 0; i < len(c.Memory); i++ {
+	for i := range c.Memory {
 		c.Memory[i] = 0
 	}
 
 	// Zero registers
-	for i := 0; i < len(c.Registers); i++ {
+	for i := range c.Registers {
 		c.Registers[i] = 0
 	}
 
 	// Zero stack
-	for i := 0; i < STACK_DEPTH; i++ {
+	for i := range c.Stack {
 		c.Stack[i] = 0
 	}
 

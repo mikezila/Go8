@@ -27,6 +27,8 @@ func main() {
 	glfw.Init()
 	defer glfw.Terminate()
 
+	glfw.WindowHint(glfw.Resizable, 0)
+
 	window, err := glfw.CreateWindow(BUFFER_WIDTH*DISPLAY_SCALE, BUFFER_HEIGHT*DISPLAY_SCALE, TITLE_STRING, nil, nil)
 	if err != nil {
 		panic(err)
@@ -49,16 +51,18 @@ func main() {
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
 
+	screen := make(chan C8FrameBuffer)
+	go chip8.Execute(screen)
+
 	for !window.ShouldClose() {
-		//fmt.Println(chip8.Execute())
-		chip8.Buffer.SetPixel(10, 20, C8Color{[3]byte{255, 255, 255}})
+
+		buffer := <-screen
 
 		gl.Clear(gl.COLOR_BUFFER_BIT)
-
 		gl.Begin(gl.POINTS)
 		for y := 0; y < BUFFER_HEIGHT; y++ {
 			for x := 0; x < BUFFER_WIDTH; x++ {
-				pixel := chip8.Buffer.GetPixel(x, y)
+				pixel := buffer.GetPixel(x, y)
 				gl.Color3ubv(&pixel.Color)
 				gl.Vertex2i(x, y)
 			}
