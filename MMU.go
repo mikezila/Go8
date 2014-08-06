@@ -65,7 +65,7 @@ func (c *Chip8Memory) PopStack() (address uint16) {
 	return
 }
 
-func (c Chip8Memory) ReadOpCode(index uint16) (opcode uint16) {
+func (c *Chip8Memory) ReadOpCode(index uint16) (opcode uint16) {
 	if index%2 != 0 {
 		fmt.Println("Warning : Reading opcode at odd address.\n")
 	}
@@ -74,7 +74,13 @@ func (c Chip8Memory) ReadOpCode(index uint16) (opcode uint16) {
 	return
 }
 
-func (c Chip8Memory) NextOpCode() (opcode uint16) {
+func (c *Chip8Memory) NextOpCode() (opcode uint16) {
+	opcode = c.ReadOpCode(c.PC)
+	c.PC += 2
+	return
+}
+
+func (c *Chip8Memory) PeekOpcode() (opcode uint16) {
 	opcode = c.ReadOpCode(c.PC)
 	return
 }
@@ -97,6 +103,6 @@ func (c *Chip8Memory) PackFonts() {
 	copy(c.Memory[0:], fonts[:])
 }
 
-func (c Chip8Memory) DumpMemory() {
+func (c *Chip8Memory) DumpMemory() {
 	fmt.Println(c.Memory)
 }

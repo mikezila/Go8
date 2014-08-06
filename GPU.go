@@ -3,7 +3,6 @@ package main
 
 import (
 	"math/rand"
-	"time"
 )
 
 const BUFFER_WIDTH int = 64
@@ -12,8 +11,22 @@ const DISPLAY_SCALE int = 10
 const PIXEL_COUNT int = BUFFER_HEIGHT * BUFFER_WIDTH
 
 type C8Color struct {
-	//rgb bytes
 	Color [3]byte
+}
+
+func (c *C8Color) Red() (red byte) {
+	red = c.Color[0]
+	return
+}
+
+func (c *C8Color) Green() (green byte) {
+	green = c.Color[1]
+	return
+}
+
+func (c *C8Color) Blue() (blue byte) {
+	blue = c.Color[2]
+	return
 }
 
 type C8FrameBuffer struct {
@@ -27,7 +40,6 @@ func (c *C8FrameBuffer) ClearScreen() {
 }
 
 func (c *C8FrameBuffer) RandomNoise() {
-	rand.Seed(int64(time.Now().Nanosecond()))
 	for i := range c.Buffer {
 		randPix := rand.Intn(2)
 		if randPix == 0 {
@@ -38,8 +50,8 @@ func (c *C8FrameBuffer) RandomNoise() {
 	}
 }
 
-func (c *C8FrameBuffer) GetPixel(x, y int) (color C8Color) {
-	color = c.Buffer[(y*BUFFER_WIDTH)+x]
+func (c *C8FrameBuffer) GetPixel(x, y int) (color *C8Color) {
+	color = &c.Buffer[(y*BUFFER_WIDTH)+x]
 	return
 }
 
@@ -49,6 +61,23 @@ func (c *C8FrameBuffer) TestPixel(x, y int) (pixelLit bool) {
 		pixelLit = true
 	} else {
 		pixelLit = false
+	}
+	return
+}
+
+func (c *C8FrameBuffer) TurnPixelOff(x, y int) {
+	c.SetPixel(x, y, C8Color{[3]byte{0, 0, 0}})
+}
+
+// When Chip8 sprites are drawn, trying to turn on a pixel that is already on sets the Vf
+// register, which is used to check for collisions in games.  It also turns the pixel off.
+// In this way, sprites can be erased by drawing them to the same location twice.
+func (c *C8FrameBuffer) TurnPixelOn(x, y int) (collision bool) {
+	collision = c.TestPixel(x, y)
+	if collision {
+		c.TurnPixelOff(x, y)
+	} else {
+		c.SetPixel(x, y, C8Color{[3]byte{255, 255, 255}})
 	}
 	return
 }

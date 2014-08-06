@@ -5,13 +5,13 @@ import (
 	"fmt"
 )
 
-func (c *Chip8Memory) Execute(screen chan C8FrameBuffer) {
+func (c *Chip8Memory) Execute(screen chan *C8FrameBuffer) {
 	quit := false
 
-	var decodedOpcode string = "Unknown Opcode"
 	for !quit {
 		opcode := c.NextOpCode()
-		c.PC += 2
+
+		decodedOpcode := "Unknown Opcode"
 
 		// Decode opcode
 		switch {
@@ -180,10 +180,11 @@ func (c *Chip8Memory) Execute(screen chan C8FrameBuffer) {
 			c.Crashed = true
 		}
 
-		if DEBUG {
+		if DEBUG_VERBOSE {
 			fmt.Println(decodedOpcode)
 		}
+
 		c.Buffer.RandomNoise()
-		screen <- c.Buffer
+		screen <- &c.Buffer
 	}
 }

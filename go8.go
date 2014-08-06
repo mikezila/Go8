@@ -12,6 +12,7 @@ import (
 const VERSION string = "v0.0"
 const TITLE_STRING string = "Go8 " + VERSION
 const DEBUG bool = true
+const DEBUG_VERBOSE bool = false
 
 func main() {
 	fmt.Println("Go8 ", VERSION)
@@ -51,7 +52,7 @@ func main() {
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
 
-	screen := make(chan C8FrameBuffer)
+	screen := make(chan *C8FrameBuffer)
 	go chip8.Execute(screen)
 
 	for !window.ShouldClose() {
