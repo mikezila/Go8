@@ -74,11 +74,11 @@ func (c *C8FrameBuffer) TurnPixelOff(x, y int) {
 // register, which is used to check for collisions in games.  It also turns the pixel off.
 // In this way, sprites can be erased by drawing them to the same location twice.
 func (c *C8FrameBuffer) TurnPixelOn(x, y int) (collision bool) {
-	if x > BUFFER_WIDTH {
+	if x >= BUFFER_WIDTH {
 		x -= BUFFER_WIDTH
 	}
 
-	if y > BUFFER_HEIGHT {
+	if y >= BUFFER_HEIGHT {
 		y -= BUFFER_HEIGHT
 	}
 	collision = c.TestPixel(x, y)

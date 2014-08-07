@@ -78,18 +78,23 @@ func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 		// Load Vx with Vx OR Vy
 		case (opcode & 0xF00F) == 0x8001:
 			decodedOpcode = "Load Vx with Vy OR Vx"
+			c.Registers[(opcode&0x0F00)>>8] |= c.Registers[(opcode&0x00F0)>>4]
 
 		// Load Vx with Vx AND Vy
 		case (opcode & 0xF00F) == 0x8002:
 			decodedOpcode = "Load Vx with Vx AND Vy"
+			c.Registers[(opcode&0x0F00)>>8] &= c.Registers[(opcode&0x00F0)>>4]
 
 		// Load Vx with Vx XOR Vy
 		case (opcode & 0xF00F) == 0x8003:
 			decodedOpcode = "Load Vx with Vx XOR Vy"
+			c.Registers[(opcode&0x0F00)>>8] ^= c.Registers[(opcode&0x00F0)>>4]
 
 		// Load Vx with Vx + Vy, Vf as carry
 		case (opcode & 0xF00F) == 0x8004:
 			decodedOpcode = "Load Vx with Vx + Vy, sets Vf as carry"
+			c.Flag = (int(c.Registers[(opcode&0x0F00)>>8]) + int(c.Registers[(opcode&0x00F0)>>4])) > 255
+			c.Registers[(opcode&0x0F00)>>8] += c.Registers[(opcode&0x00F0)>>4]
 
 		// Load Vx with Vx - Vy, Vf set if no carry happened
 		case (opcode & 0xF00F) == 0x8005:
@@ -112,6 +117,9 @@ func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 		// Skip next instruction if Vx != Vy
 		case (opcode & 0xF00F) == 0x9000:
 			decodedOpcode = "Skip next opcode if Vx != Vy"
+			if c.Registers[(opcode&0x0F00)>>8] != c.Registers[(opcode&0x00F0)>>4] {
+				c.PC += 2
+			}
 
 		// Load Indexer with nnn : Annn
 		case (opcode & 0xF000) == 0xA000:

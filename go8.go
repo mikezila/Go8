@@ -20,7 +20,7 @@ func main() {
 	chip8 := Chip8Memory{}
 	chip8.Reset()
 	chip8.PackFonts()
-	chip8.LoadRom("roms/IBM.c8")
+	chip8.LoadRom("roms/C8pic.c8")
 
 	// lock glfw/gl calls to a single thread
 	runtime.LockOSThread()
