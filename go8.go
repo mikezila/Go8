@@ -11,7 +11,7 @@ import (
 
 const VERSION string = "v0.0"
 const TITLE_STRING string = "Go8 " + VERSION
-const DEBUG bool = true
+const DEBUG bool = false
 const DEBUG_VERBOSE bool = false
 
 func main() {
@@ -53,7 +53,7 @@ func main() {
 	gl.LoadIdentity()
 
 	screen := make(chan *C8FrameBuffer)
-	go chip8.Execute(screen)
+	go chip8.execute(screen)
 
 	for !window.ShouldClose() {
 

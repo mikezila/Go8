@@ -5,13 +5,14 @@ import (
 	"fmt"
 )
 
-func (c *Chip8Memory) Execute(screen chan *C8FrameBuffer) {
+func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 	quit := false
 
 	for !quit {
+		updateScreen := true
 		opcode := c.NextOpCode()
 
-		decodedOpcode := "Unknown Opcode"
+		var decodedOpcode string
 
 		// Decode opcode
 		switch {
@@ -19,6 +20,7 @@ func (c *Chip8Memory) Execute(screen chan *C8FrameBuffer) {
 		// Clear Screen
 		case (opcode & 0x00F0) == 0x00E0:
 			decodedOpcode = "Clear Screen"
+			updateScreen = true
 			c.Buffer.ClearScreen()
 
 		// Return from subroutine
@@ -40,38 +42,38 @@ func (c *Chip8Memory) Execute(screen chan *C8FrameBuffer) {
 		// Skip next op if Vx == kk : 3xkk
 		case (opcode & 0xF000) == 0x3000:
 			decodedOpcode = "Skip next if Vx == kk"
-			if c.Registers[((opcode&0x0F00)>>16)] == byte(opcode&0x00FF) {
+			if c.Registers[(opcode&0x0F00)>>8] == byte(opcode&0x00FF) {
 				c.PC += 2
 			}
 
 		// Skip next op if Vx != kk : 4xkk
 		case (opcode & 0xF000) == 0x4000:
 			decodedOpcode = "Skip next if Vx != kk"
-			if c.Registers[((opcode&0x0F00)>>16)] != byte(opcode&0x00FF) {
+			if c.Registers[(opcode&0x0F00)>>8] != byte(opcode&0x00FF) {
 				c.PC += 2
 			}
 
 		// Skip next op if Vx == Vy : 5xy0
 		case (opcode & 0xF000) == 0x5000:
 			decodedOpcode = "Skip next if Vx == Vy"
-			if c.Registers[(opcode&0x0F00)>>16] == c.Registers[(opcode&0x00F0)>>8] {
+			if c.Registers[(opcode&0x0F00)>>8] == c.Registers[(opcode&0x00F0)>>4] {
 				c.PC += 2
 			}
 
 		// Load Vx with kk : 6xkk
 		case (opcode & 0xF000) == 0x6000:
 			decodedOpcode = "Load Vx with kk"
-			c.Registers[(opcode&0x0F00)>>16] = byte(opcode & 0x00FF)
+			c.Registers[(opcode&0x0F00)>>8] = byte(opcode & 0x00FF)
 
 		// Add kk to Vx : 7xkk
 		case (opcode & 0xF000) == 0x7000:
 			decodedOpcode = "Add kk to Vx"
-			c.Registers[(opcode&0x0F00)>>16] += byte(opcode & 0x00FF)
+			c.Registers[(opcode&0x0F00)>>8] += byte(opcode & 0x00FF)
 
 		// Load Vx with Vy : 8xy0
 		case (opcode & 0xF00F) == 0x8000:
 			decodedOpcode = "Load Vx with Vy"
-			c.Registers[(opcode&0x0F00)>>16] = c.Registers[(opcode&0x00F0)>>8]
+			c.Registers[(opcode&0x0F00)>>8] = c.Registers[(opcode&0x00F0)>>4]
 
 		// Load Vx with Vx OR Vy
 		case (opcode & 0xF00F) == 0x8001:
@@ -114,6 +116,7 @@ func (c *Chip8Memory) Execute(screen chan *C8FrameBuffer) {
 		// Load Indexer with nnn : Annn
 		case (opcode & 0xF000) == 0xA000:
 			decodedOpcode = "Load Indexer"
+			c.Indexer = (opcode & 0x0FFF)
 
 		// Jump to nnn + V0 : Bnnn
 		case (opcode & 0xF000) == 0xB000:
@@ -128,6 +131,8 @@ func (c *Chip8Memory) Execute(screen chan *C8FrameBuffer) {
 		// Dxyn
 		case (opcode & 0xF000) == 0xD000:
 			decodedOpcode = "Draw sprite."
+			updateScreen = true
+			c.DrawSprite(opcode)
 
 		// Skip next if key with value Vx is pressed : Ex9E
 		case (opcode & 0xF0FF) == 0xE09E:
@@ -184,7 +189,9 @@ func (c *Chip8Memory) Execute(screen chan *C8FrameBuffer) {
 			fmt.Println(decodedOpcode)
 		}
 
-		c.Buffer.RandomNoise()
-		screen <- &c.Buffer
+		if updateScreen {
+			screen <- &c.Buffer
+			updateScreen = false
+		}
 	}
 }

@@ -2,12 +2,13 @@
 package main
 
 import (
+	//"fmt"
 	"math/rand"
 )
 
 const BUFFER_WIDTH int = 64
 const BUFFER_HEIGHT int = 32
-const DISPLAY_SCALE int = 10
+const DISPLAY_SCALE int = 15
 const PIXEL_COUNT int = BUFFER_HEIGHT * BUFFER_WIDTH
 
 type C8Color struct {
@@ -73,6 +74,13 @@ func (c *C8FrameBuffer) TurnPixelOff(x, y int) {
 // register, which is used to check for collisions in games.  It also turns the pixel off.
 // In this way, sprites can be erased by drawing them to the same location twice.
 func (c *C8FrameBuffer) TurnPixelOn(x, y int) (collision bool) {
+	if x > BUFFER_WIDTH {
+		x -= BUFFER_WIDTH
+	}
+
+	if y > BUFFER_HEIGHT {
+		y -= BUFFER_HEIGHT
+	}
 	collision = c.TestPixel(x, y)
 	if collision {
 		c.TurnPixelOff(x, y)
@@ -84,4 +92,23 @@ func (c *C8FrameBuffer) TurnPixelOn(x, y int) (collision bool) {
 
 func (c *C8FrameBuffer) SetPixel(x, y int, color C8Color) {
 	c.Buffer[(y*BUFFER_WIDTH)+x] = color
+}
+
+func (c *Chip8Memory) DrawSprite(opcode uint16) {
+	collision := false
+
+	x := int(c.Registers[((opcode >> 8) & 0x000F)])
+	y := int(c.Registers[((opcode >> 4) & 0x000F)])
+	size := int((opcode & 0x000F))
+
+	for i := 0; i < size; i++ {
+		spriteLine := c.ReadByte(c.Indexer + uint16(i))
+		for currentPixel := 0; currentPixel <= 8; currentPixel++ {
+			if (spriteLine & (1 << uint(8-currentPixel))) > 0 {
+				collision = c.Buffer.TurnPixelOn((x + currentPixel), y+i)
+			}
+		}
+	}
+
+	c.Flag = collision
 }

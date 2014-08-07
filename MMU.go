@@ -7,7 +7,7 @@ import (
 )
 
 const MAX_MEMORY uint16 = 0xFFF
-const REGISTER_COUNT int = 16
+const REGISTER_COUNT int = 15
 const PC_START uint16 = 0x200
 const FONTS_BEGIN uint16 = 0x000
 const STACK_DEPTH int = 16
@@ -18,7 +18,7 @@ type Chip8Memory struct {
 	Registers  [REGISTER_COUNT]byte
 	Stack      [STACK_DEPTH]uint16
 	SP         byte
-	Flag       byte
+	Flag       bool
 	PC         uint16
 	Indexer    uint16
 	SoundTimer byte
@@ -44,7 +44,7 @@ func (c *Chip8Memory) Reset() {
 
 	// Zero other registers
 	c.SP = 0
-	c.Flag = 0
+	c.Flag = false
 	c.Indexer = 0
 	c.SoundTimer = 0
 	c.DelayTimer = 0
@@ -67,7 +67,7 @@ func (c *Chip8Memory) PopStack() (address uint16) {
 
 func (c *Chip8Memory) ReadOpCode(index uint16) (opcode uint16) {
 	if index%2 != 0 {
-		fmt.Println("Warning : Reading opcode at odd address.\n")
+		fmt.Println("Warning : Reading opcode at odd address.")
 	}
 	opcode = uint16(c.Memory[index]) << 8
 	opcode |= uint16(c.Memory[index+1])
@@ -91,6 +91,11 @@ func (c *Chip8Memory) LoadRom(romName string) {
 		panic(err)
 	}
 	copy(c.Memory[PC_START:], rom[:])
+}
+
+func (c *Chip8Memory) ReadByte(index uint16) (data byte) {
+	data = c.Memory[index]
+	return
 }
 
 func (c *Chip8Memory) WriteByte(data byte, index uint16) {
