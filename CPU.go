@@ -3,6 +3,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
@@ -133,6 +134,7 @@ func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 		// Generate random byte then AND it with kk, store result in Vx : Cxkk
 		case (opcode & 0xF000) == 0xC000:
 			decodedOpcode = "Store random byte in Vx, ANDed with kk"
+			c.Registers[(opcode&0x0F00)>>8] = byte(rand.Int()) & byte(opcode&0x00FF)
 
 		// Draw spite
 		// The interpreter reads n bytes from memory, starting at the address stored in I. These bytes are then displayed as sprites on screen at coordinates (Vx, Vy). Sprites are XORed onto the existing screen. If this causes any pixels to be erased, VF is set to 1, otherwise it is set to 0. If the sprite is positioned so part of it is outside the coordinates of the display, it wraps around to the opposite side of the screen.

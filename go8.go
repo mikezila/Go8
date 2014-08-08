@@ -9,7 +9,7 @@ import (
 	"runtime"
 )
 
-const VERSION string = "v0.0"
+const VERSION string = "v0.1"
 const TITLE_STRING string = "Go8 " + VERSION
 const DEBUG bool = false
 const DEBUG_VERBOSE bool = false
@@ -20,7 +20,7 @@ func main() {
 	chip8 := Chip8Memory{}
 	chip8.Reset()
 	chip8.PackFonts()
-	chip8.LoadRom("roms/C8pic.c8")
+	chip8.LoadRom("roms/tetris.c8")
 
 	// lock glfw/gl calls to a single thread
 	runtime.LockOSThread()
