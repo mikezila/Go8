@@ -19,13 +19,13 @@ func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 		switch {
 
 		// Clear Screen
-		case (opcode & 0x00F0) == 0x00E0:
+		case opcode == 0x00E0:
 			decodedOpcode = "Clear Screen"
 			updateScreen = true
 			c.Buffer.ClearScreen()
 
 		// Return from subroutine
-		case (opcode & 0x00FF) == 0x00EE:
+		case opcode == 0x00EE:
 			decodedOpcode = "Return from subroutine"
 			c.PC = c.PopStack()
 
@@ -100,20 +100,30 @@ func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 		// Load Vx with Vx - Vy, Vf set if no carry happened
 		case (opcode & 0xF00F) == 0x8005:
 			decodedOpcode = "Load Vx with Vx - Vy, sets Vf if no carry"
+			if c.Registers[(opcode&0x0F00)>>8] > c.Registers[(opcode&0x00F0)>>4] {
+				c.Flag = true
+			} else {
+				c.Flag = false
+			}
+			c.Registers[(opcode&0x0F00)>>8] -= c.Registers[(opcode&0x00F0)>>4]
 
 		// SHR Vx - If the least significant bit of Vx is set, then Vf is set, otherwise is cleared.
-		// Vx is this divided by 2.
+		// Vx is this divided by 2.  This is essentially just a bitshift with saved carry.
 		case (opcode & 0xF00F) == 0x8006:
-			decodedOpcode = "SHR Vx"
+			decodedOpcode = "Shift Vx right, saving sign in Vf"
+			c.Flag = (c.Registers[(opcode&0x0F00)>>8] & (1 << 7)) > 0
+			c.Registers[(opcode&0x0F00)>>8] >>= 2
 
 		// Load Vx with Vy - Vx, Vf set if no carry happened
 		case (opcode & 0xF00F) == 0x8007:
 			decodedOpcode = "Load Vy with Vy - Vx, sets Vf if no carry"
 
 		// SHL Vx - If the most-significant bit of Vx is 1, then VF is set to 1, otherwise to 0.
-		// Then Vx is multiplied by 2.
+		// Then Vx is multiplied by 2.  This is essentially just a bitshift with saved carry.
 		case (opcode & 0xF00F) == 0x800E:
-			decodedOpcode = "SHL Vx"
+			decodedOpcode = "Shift Vx left, saving sign in carry"
+			c.Flag = (c.Registers[(opcode&0x0F00)>>8] & (1 << 7)) > 0
+			c.Registers[(opcode&0x0F00)>>8] <<= 2
 
 		// Skip next instruction if Vx != Vy
 		case (opcode & 0xF00F) == 0x9000:
@@ -163,14 +173,17 @@ func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 		// Load delay timer with Vx
 		case (opcode & 0xF0FF) == 0xF015:
 			decodedOpcode = "Load delay timer"
+			c.DelayTimer = c.Registers[(opcode&0x0F00)>>8]
 
 		// Load sound timer with Vx
 		case (opcode & 0xF0FF) == 0xF018:
 			decodedOpcode = "Load sound timer"
+			c.SoundTimer = c.Registers[(opcode&0x0F00)>>8]
 
 		// Add Vx to Indexer
 		case (opcode & 0xF0FF) == 0xF01E:
 			decodedOpcode = "Add Vx to Indexer"
+			c.Indexer += uint16(c.Registers[(opcode&0x0F00)>>8])
 
 		// Set Indexer to location for digit sprite that of value in Vx
 		case (opcode & 0xF0FF) == 0xF029:

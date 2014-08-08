@@ -12,7 +12,7 @@ import (
 const VERSION string = "v0.1"
 const TITLE_STRING string = "Go8 " + VERSION
 const DEBUG bool = false
-const DEBUG_VERBOSE bool = false
+const DEBUG_VERBOSE bool = true
 
 func main() {
 	fmt.Println("Go8 ", VERSION)

@@ -66,7 +66,7 @@ func (c *Chip8Memory) PopStack() (address uint16) {
 }
 
 func (c *Chip8Memory) ReadOpCode(index uint16) (opcode uint16) {
-	if index%2 != 0 {
+	if index%2 != 0 && DEBUG_VERBOSE {
 		fmt.Println("Warning : Reading opcode at odd address.")
 	}
 	opcode = uint16(c.Memory[index]) << 8
