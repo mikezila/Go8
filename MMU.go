@@ -108,6 +108,16 @@ func (c *Chip8Memory) PackFonts() {
 	copy(c.Memory[0:], fonts[:])
 }
 
+// This loads the indexer with the address of the requested hex digit.
+func (c *Chip8Memory) RequestDigitAddress(digit byte) {
+	if digit > 0x0F {
+		fmt.Println("Requested invalid digit.")
+		c.Indexer = 0
+	} else {
+		c.Indexer = digit * 5
+	}
+}
+
 func (c *Chip8Memory) DumpMemory() {
 	fmt.Println(c.Memory)
 }

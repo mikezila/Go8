@@ -1,10 +1,13 @@
 Go8
 ===
 
-A simple Chip8 emulaator in Go
+A simple Chip8 emulator in Go
 
-This is a port of my Sharp8 emualtor.  It uses OpenGL for display and GLFW for input/windowmaking.  I'm still a total novice at OpenGL, so a large part of the OpenGL init/drawing was lifted wholesale from other projects I found.  It's not really ready yet, but it decodes all opcodes and some are impliemnted.
+This is a port of my Sharp8 emualtor.  It uses OpenGL for display and GLFW3 for input/windowmaking.  I'm still a total novice at OpenGL, so a large part of the OpenGL init/drawing was lifted wholesale from other projects I found.  It's not really ready yet, but it decodes all opcodes and some are impliemnted.
 
-If you want to build this you'll need go-gl, glfw3, and glew installed.  Once I have it to a stable point I'll make running it less of a pain I hope.  So far it's much, much faster than the C# version, we'll see how it stacks up once all of the opcodes are in.
+Building
+--------
 
-As with all my projects, feel free to fork/copy/steal, whatever.  This project is in the public domain.
+This is only tested on Mac OS X, so your milage may vary elsewhere.  You'll need the go-gl and glfw3 go packages installed.  In order to get them installed you'll need to install glfw3 and glew manually.  There aren't any pre-built binaries that I could fine for OS X, but compiling it isn't too hard.
+
+Once all that is done, just go build and the magic will happen.  Right now the rom that will be run is hard coded as a path in the source, but you should be quick enough to change that if you like, it's in the go8.go file.
