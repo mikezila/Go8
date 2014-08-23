@@ -8,9 +8,9 @@ import (
 
 func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 	quit := false
-
+	updateScreen := true
 	for !quit {
-		updateScreen := true
+
 		opcode := c.NextOpCode()
 
 		var decodedOpcode string
@@ -32,6 +32,7 @@ func (c *Chip8Memory) execute(screen chan *C8FrameBuffer) {
 		// Direct Jump (no stack push)
 		case (opcode & 0xF000) == 0x1000:
 			decodedOpcode = "Jump"
+			updateScreen = true
 			c.PC = opcode & 0x0FFF
 
 		// Call subroutine

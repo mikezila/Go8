@@ -114,7 +114,7 @@ func (c *Chip8Memory) RequestDigitAddress(digit byte) {
 		fmt.Println("Requested invalid digit.")
 		c.Indexer = 0
 	} else {
-		c.Indexer = digit * 5
+		c.Indexer = uint16(digit * 5)
 	}
 }
 
