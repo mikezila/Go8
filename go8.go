@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/go-gl/gl"
 	glfw "github.com/go-gl/glfw3"
-	"github.com/go-gl/glu"
 	"runtime"
 )
 
@@ -20,7 +19,7 @@ func main() {
 	chip8 := Chip8Memory{}
 	chip8.Reset()
 	chip8.PackFonts()
-	chip8.LoadRom("roms/tetris.c8")
+	chip8.LoadRom("roms/IBM.c8")
 
 	// lock glfw/gl calls to a single thread
 	runtime.LockOSThread()
@@ -76,12 +75,5 @@ func main() {
 		if window.GetKey(glfw.KeyEscape) == glfw.Press {
 			window.SetShouldClose(true)
 		}
-	}
-}
-
-func checkGLerror() {
-	if glerr := gl.GetError(); glerr != gl.NO_ERROR {
-		string, _ := glu.ErrorString(glerr)
-		panic(string)
 	}
 }
