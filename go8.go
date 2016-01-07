@@ -3,16 +3,10 @@ package main
 
 import (
 	"fmt"
-<<<<<<< HEAD
 	"math"
 	"runtime"
 
 	gl "github.com/go-gl/gl/all-core/gl"
-=======
-	"runtime"
-
-	"github.com/go-gl/gl/v3.3-core/gl"
->>>>>>> origin/master
 	glfw "github.com/go-gl/glfw/v3.1/glfw"
 )
 
