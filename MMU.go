@@ -7,7 +7,7 @@ import (
 )
 
 const MAX_MEMORY uint16 = 0xFFF
-const REGISTER_COUNT int = 15
+const REGISTER_COUNT int = 16
 const PC_START uint16 = 0x200
 const FONTS_BEGIN uint16 = 0x000
 const STACK_DEPTH int = 16

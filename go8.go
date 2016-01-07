@@ -3,15 +3,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-gl/gl"
-	glfw "github.com/go-gl/glfw3"
+	"math"
 	"runtime"
+
+	gl "github.com/go-gl/gl/all-core/gl"
+	glfw "github.com/go-gl/glfw/v3.1/glfw"
 )
 
-const VERSION string = "v0.4"
+const VERSION string = "v0.6"
 const TITLE_STRING string = "Go8 " + VERSION
 const DEBUG bool = false
-const DEBUG_VERBOSE bool = true
+const DEBUG_VERBOSE bool = false
 
 func main() {
 	fmt.Println("Go8 ", VERSION)
@@ -19,7 +21,7 @@ func main() {
 	chip8 := Chip8Memory{}
 	chip8.Reset()
 	chip8.PackFonts()
-	chip8.LoadRom("roms/tetris.c8")
+	chip8.LoadRom("roms/maze.c8")
 
 	// lock glfw/gl calls to a single thread
 	runtime.LockOSThread()
@@ -43,7 +45,7 @@ func main() {
 	gl.Disable(gl.DEPTH_TEST)
 	gl.PointSize(float32(DISPLAY_SCALE))
 	gl.ClearColor(255, 255, 0, 0)
-	gl.Viewport(0, 0, BUFFER_WIDTH*DISPLAY_SCALE, BUFFER_HEIGHT*DISPLAY_SCALE)
+	gl.Viewport(0, 0, int32(BUFFER_WIDTH*DISPLAY_SCALE), int32(BUFFER_HEIGHT*DISPLAY_SCALE))
 	gl.MatrixMode(gl.PROJECTION)
 	gl.LoadIdentity()
 	gl.Ortho(-0.5, float64(BUFFER_WIDTH)-0.5, float64(BUFFER_HEIGHT)-0.5, -0.5, -1, 1)
@@ -51,25 +53,28 @@ func main() {
 	gl.MatrixMode(gl.MODELVIEW)
 	gl.LoadIdentity()
 
-	screen := make(chan *C8FrameBuffer)
-	go chip8.execute(screen)
-
 	for !window.ShouldClose() {
+		chip8.execute()
 
-		buffer := <-screen
-
-		gl.Clear(gl.COLOR_BUFFER_BIT)
-		gl.Begin(gl.POINTS)
-		for y := 0; y < BUFFER_HEIGHT; y++ {
-			for x := 0; x < BUFFER_WIDTH; x++ {
-				pixel := buffer.GetPixel(x, y)
-				gl.Color3ubv(&pixel.Color)
-				gl.Vertex2i(x, y)
+		if chip8.Buffer.Dirty {
+			gl.Clear(gl.COLOR_BUFFER_BIT)
+			gl.Begin(gl.POINTS)
+			for y := 0; y < BUFFER_HEIGHT; y++ {
+				for x := 0; x < BUFFER_WIDTH; x++ {
+					pixel := chip8.Buffer.GetPixel(x, y)
+					if pixel {
+						gl.Color4i(math.MaxInt32, math.MaxInt32, math.MaxInt32, math.MaxInt32)
+					} else {
+						gl.Color4i(0, 0, 0, math.MaxInt32)
+					}
+					gl.Vertex2i(int32(x), int32(y))
+				}
 			}
+			gl.End()
+			window.SwapBuffers()
 		}
-		gl.End()
+		chip8.Buffer.Dirty = false
 
-		window.SwapBuffers()
 		glfw.PollEvents()
 
 		if window.GetKey(glfw.KeyEscape) == glfw.Press {
