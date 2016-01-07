@@ -3,9 +3,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-gl/gl"
-	glfw "github.com/go-gl/glfw3"
 	"runtime"
+
+	"github.com/go-gl/gl/v3.3-core/gl"
+	glfw "github.com/go-gl/glfw/v3.1/glfw"
 )
 
 const VERSION string = "v0.4"
